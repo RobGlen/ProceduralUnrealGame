@@ -29,6 +29,7 @@ struct SquarifiedTreemapParameters
 	bool randomiseCellsPerRecursion = false;
 	bool useCellValues = false;
 	bool randomiseSegmentCountPerRecursion = false;
+	Cell rootCell;
 	int baseSegments = 2;
 	int depth = 1;
 	int decay = 0;

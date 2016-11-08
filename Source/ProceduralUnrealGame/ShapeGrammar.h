@@ -7,6 +7,9 @@
  */
 class PROCEDURALUNREALGAME_API ShapeGrammar
 {
+private:
+	void CreateSide( const FVector& a, const FVector& b, const FVector& c, const FVector& d,  TArray<FVector>& verts );
+
 public:
 	ShapeGrammar();
 	~ShapeGrammar();

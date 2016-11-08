@@ -16,7 +16,7 @@ void ShapeGrammar::ExtrudePlane( TArray<FVector>& vertices, bool randomiseHeight
 {
 	TArray<FVector> newverts;
 	FVector defaultNormal( 0.0f, 0.0f, 1.0f );
-	FVector& normal = defaultNormal;
+	FVector normal = defaultNormal;
 	float randomFactor = 1.0f;
 
 	for ( int i = 0; i < vertices.Num(); i += 6 )
@@ -26,8 +26,9 @@ void ShapeGrammar::ExtrudePlane( TArray<FVector>& vertices, bool randomiseHeight
 
 		if ( randomiseHeights )
 		{
-			randomFactor = Maths::RandomGen( 0.4f, 2.0f );
+			randomFactor = Maths::RandomGen( 0.4f, 1.0f );
 			normal *= randomFactor;
+			UE_LOG( LogTemp, Warning, TEXT( "%f: ( %f, %f, %f )" ), randomFactor, normal.X, normal.Y, normal.Z );
 		}
 
 		FVector verts[4];
@@ -43,14 +44,21 @@ void ShapeGrammar::ExtrudePlane( TArray<FVector>& vertices, bool randomiseHeight
 		newverts.Add( verts[2] );
 		newverts.Add( verts[1] );
 
-		FVector side[4];
-		for ( int j = 0; j < 4; ++j )
-		{
-			int next = ( j+1 >= 4 ) ? 0 : j+1;
-			//newverts.Add( newverts[j] );
-			//newverts.Add( verts[j+1] );
-		}
+		CreateSide( verts[0],		vertices[i],	verts[1],		vertices[i+1],	newverts );
+		CreateSide( verts[3],		vertices[i+3],	verts[2],		vertices[i+2],	newverts );
+		CreateSide( verts[2],		vertices[i+2],	verts[0],		vertices[i],	newverts );
+		CreateSide( verts[1],		vertices[i+1],	verts[3],		vertices[i+3],	newverts );
 	}
 
 	vertices.Append( newverts );
+}
+
+void ShapeGrammar::CreateSide( const FVector& a, const FVector& b, const FVector& c, const FVector& d, TArray<FVector>& verts )
+{
+	verts.Add( a );
+	verts.Add( b );
+	verts.Add( c );
+	verts.Add( d );
+	verts.Add( c );
+	verts.Add( b );
 }

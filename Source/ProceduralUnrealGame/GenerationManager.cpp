@@ -44,9 +44,14 @@ void UGenerationManager::GenerateTreepmapArea( void )
 	SquarifiedTreemap squarifiedTreemap;
 	ShapeGrammar shapeGrammar;
 
+	float scaleFactor = 20.0f;
 	SquarifiedTreemapParameters stmParams;
 	stmParams.randomiseSegmentCountPerRecursion = true;
-	stmParams.depth = 3;
+	stmParams.depth = 6;
+	stmParams.rootCell.points[0] = { -scaleFactor, -scaleFactor };
+	stmParams.rootCell.points[1] = { scaleFactor, -scaleFactor };
+	stmParams.rootCell.points[2] = { scaleFactor, scaleFactor };
+	stmParams.rootCell.points[3] = { -scaleFactor, scaleFactor };
 
 	TArray<FVector> vertices;
 

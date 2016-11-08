@@ -19,12 +19,13 @@ void SquarifiedTreemap::GenerateSTM( SquarifiedTreemapParameters& stmParams, TAr
 	m_pRoot->cellValue = 1;
 	m_stmParams = stmParams;
 	GenerateTree( m_pRoot, stmParams.baseSegments, stmParams.depth, stmParams.decay );
-
+	
+	m_pRoot->cell = m_stmParams.rootCell;
 	//m_pRoot->cell = { { -1.0f, -1.0f }, { 1.0f, -1.0f }, { 1.0f, 1.0f }, { -1.0f, 1.0f } };
-	m_pRoot->cell.points[0] = { -1.0f, -1.0f };
-	m_pRoot->cell.points[1] = { 1.0f, -1.0f };
-	m_pRoot->cell.points[2] = { 1.0f, 1.0f };
-	m_pRoot->cell.points[3] = { -1.0f, 1.0f };
+	//m_pRoot->cell.points[0] = { -1.0f, -1.0f };
+	//m_pRoot->cell.points[1] = { 1.0f, -1.0f };
+	//m_pRoot->cell.points[2] = { 1.0f, 1.0f };
+	//m_pRoot->cell.points[3] = { -1.0f, 1.0f };
 	GenerateMap( m_pRoot, true );
 
 	ConvertSTMToVertices( m_pRoot, vertices );
