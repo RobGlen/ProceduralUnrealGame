@@ -1,0 +1,15 @@
+*.opensdf
+*.sdf
+*.suo
+*.dll
+*.zip
+*.user
+*.VC.*
+Debug/
+Release/
+Output/
+Binaries/
+Build/
+Intermediate/
+Saved/
+StarterContent/
