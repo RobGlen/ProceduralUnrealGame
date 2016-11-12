@@ -5,6 +5,12 @@
 /**
  * 
  */
+
+struct Line
+{
+	FVector a, b;
+};
+
 class PROCEDURALUNREALGAME_API ShapeGrammar
 {
 private:
@@ -13,5 +19,7 @@ private:
 public:
 	ShapeGrammar();
 	~ShapeGrammar();
-	void ExtrudePlane( TArray<FVector>& vertices, bool randomiseHeights = false, TArray<FVector>* normals = nullptr );
+	void ExtrudePlanes( TArray<FVector>& vertices, bool randomiseHeights = false, float min = 1.0f, float max = 1.0f, TArray<FVector>* normals = nullptr );
+	void CreatePathMesh( TArray<Line>& path, TArray<FVector>& vertices, float width );
+	void CreatePlane( TArray<FVector>& vertices, float scale = 1.0f );
 };

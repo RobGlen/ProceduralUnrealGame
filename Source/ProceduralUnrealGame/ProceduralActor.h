@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <string>
 #include "GameFramework/Actor.h"
 #include "ProceduralMeshComponent.h"
 #include "ProceduralActor.generated.h"
@@ -14,6 +15,7 @@ class PROCEDURALUNREALGAME_API AProceduralActor : public AActor
 	GENERATED_BODY()
 private:
 	UProceduralMeshComponent* m_pMesh = nullptr;
+	UMaterial* m_pMaterial = nullptr;
 	//TArray<FVector>& vertices;
 
 public:	
@@ -31,6 +33,6 @@ public:
 						TArray<FVector>& normals,
 						TArray<int>& triangles );
 
-	void SetVertices( TArray<FVector>& vertices );
-	
+	void SetVertices( TArray<FVector>& vertices, float uvScale = 1.0f );
+	void SetMaterial( FString materialName );
 };

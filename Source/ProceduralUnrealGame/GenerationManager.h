@@ -5,11 +5,15 @@
 #include "Components/SceneComponent.h"
 #include "GenerationManager.generated.h"
 
+class ShapeGrammar;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROCEDURALUNREALGAME_API UGenerationManager : public USceneComponent
 {
 	GENERATED_BODY()
+
+private:
+	ShapeGrammar* m_pShapeGrammar;
 
 public:	
 	// Sets default values for this component's properties
@@ -21,6 +25,8 @@ public:
 	// Called every frame
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
-	void GenerateTreepmapArea( void );
+	void Generate( void );
+	void CreateWater( void );
+	void GenerateTreepmapArea( FVector& position, float& minHeight, float& maxHeight );
 	
 };

@@ -27,7 +27,7 @@ void UGenerationManager::BeginPlay()
 	Maths::ResetSeed();
 
 	// start the generation process
-	GenerateTreepmapArea();
+	Generate();
 }
 
 
@@ -39,10 +39,50 @@ void UGenerationManager::TickComponent( float DeltaTime, ELevelTick TickType, FA
 	// ...
 }
 
-void UGenerationManager::GenerateTreepmapArea( void )
+void UGenerationManager::Generate( void )
+{
+	int rows = 6, columns = 6;
+	FVector position( 0.0f, 0.0f, 0.0f );
+	float offset = 5000.0f;
+	m_pShapeGrammar = new ShapeGrammar();
+
+	CreateWater();
+
+	/*for ( int i = 0; i < rows; ++i )
+	{
+		for ( int j = 0; j < columns; ++j )
+		{
+			position.X = ( float )i * offset;
+			position.Y = ( float )j * offset;
+			float randmin = Maths::RandomGen( 0.4f, 20.4 );
+			float randmax = randmin + Maths::RandomGen( 0.6f, 2.0f );
+			GenerateTreepmapArea( position, randmin, randmax );
+		}
+	}*/
+
+	delete m_pShapeGrammar;
+}
+
+void UGenerationManager::CreateWater( void )
+{
+	TArray<FVector> vertices;
+	FActorSpawnParameters spawnParams;
+	FVector position( 0.0f, 0.0f, 0.0f );
+	FRotator rotation( 0.0f, 0.0f, 0.0f );
+
+	float planeScale = 1000.0f;
+	m_pShapeGrammar->CreatePlane( vertices, planeScale );
+
+	AProceduralActor* p_obj = GetWorld()->SpawnActor<AProceduralActor>( AProceduralActor::StaticClass(), position, rotation, spawnParams );
+	p_obj->SetVertices( vertices, planeScale );
+	p_obj->SetActorScale3D( FVector( 100.0f, 100.0f, 100.0f ) );
+	p_obj->SetMaterial( "M_Water_Ocean" );
+}
+
+void UGenerationManager::GenerateTreepmapArea( FVector& position, float& minHeight, float& maxHeight  )
 {
 	SquarifiedTreemap squarifiedTreemap;
-	ShapeGrammar shapeGrammar;
+	
 
 	float scaleFactor = 20.0f;
 	SquarifiedTreemapParameters stmParams;
@@ -55,20 +95,15 @@ void UGenerationManager::GenerateTreepmapArea( void )
 
 	TArray<FVector> vertices;
 
-	squarifiedTreemap.GenerateSTM( stmParams, vertices );
-	shapeGrammar.ExtrudePlane( vertices, true );
 	UE_LOG( LogTemp, Warning, TEXT( "Generate treemap" ) );
+	squarifiedTreemap.GenerateSTM( stmParams, vertices );
+	m_pShapeGrammar->ExtrudePlanes( vertices, true, minHeight, maxHeight );
 
 	FActorSpawnParameters spawnParams;
-	FVector position( 0.0f, 0.0f, 0.0f );
+	//FVector position( 0.0f, 0.0f, 0.0f );
 	FRotator rotation( 0.0f, 0.0f, 0.0f );
 
 	AProceduralActor* p_obj = GetWorld()->SpawnActor<AProceduralActor>( AProceduralActor::StaticClass(), position, rotation, spawnParams );
 	p_obj->SetVertices( vertices );
 	p_obj->SetActorScale3D( FVector( 100.0f, 100.0f, 100.0f ) );
-
-	/*TArray<FVector> verts;
-	verts.Add( FVector( 0.0f, 0.0f, 1.0f ) );
-	verts.Add( FVector( -1.0f, 0.0f, -1.0f ) );
-	verts.Add( FVector( 1.0f, 0.0f, -1.0f ) );*/
 }
