@@ -33,6 +33,6 @@ public:
 						TArray<FVector>& normals,
 						TArray<int>& triangles );
 
-	void SetVertices( TArray<FVector>& vertices, float uvScale = 1.0f );
+	void SetVertices( TArray<FVector>& vertices, bool useCollision = true, float uvScale = 1.0f );
 	void SetMaterial( FString materialName );
 };

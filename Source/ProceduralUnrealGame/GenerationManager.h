@@ -14,6 +14,7 @@ class PROCEDURALUNREALGAME_API UGenerationManager : public USceneComponent
 
 private:
 	ShapeGrammar* m_pShapeGrammar;
+	APawn* m_pPlayer;
 
 public:	
 	// Sets default values for this component's properties

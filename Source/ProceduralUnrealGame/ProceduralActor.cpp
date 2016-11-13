@@ -10,7 +10,8 @@ AProceduralActor::AProceduralActor()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	m_pMesh = CreateDefaultSubobject<UProceduralMeshComponent>( TEXT( "GeneratedMesh" ) );
-	m_pMaterial = CreateDefaultSubobject<UMaterial>( TEXT( "MeshMaterial" ) );
+	//m_pMaterial = CreateDefaultSubobject<UMaterial>( TEXT( "MeshMaterial" ) );
+	RootComponent = m_pMesh;
 }
 
 // Called when the game starts or when spawned
@@ -36,7 +37,7 @@ void AProceduralActor::SetVertexData(	TArray<FVector>& vertices,
 	m_pMesh->CreateMeshSection( 1, vertices, triangles, normals, uvs, colors, tangents, false );
 }
 
-void AProceduralActor::SetVertices( TArray<FVector>& vertices, float uvScale )
+void AProceduralActor::SetVertices( TArray<FVector>& vertices, bool useCollision, float uvScale )
 {
 	TArray<FVector2D> uvs;
 	TArray<FVector> normals;
@@ -81,22 +82,39 @@ void AProceduralActor::SetVertices( TArray<FVector>& vertices, float uvScale )
 	colors.Add( FColor( 255, 255, 255, 255 ) );
 	tangents.Add( FProcMeshTangent( 1, 1, 1 ) );
 
-	m_pMesh->CreateMeshSection( 1, vertices, triangles, normals, uvs, colors, tangents, true );
+	m_pMesh->CreateMeshSection( 0, vertices, triangles, normals, uvs, colors, tangents, useCollision );
 
 	//m_pMesh->AttachTo(RootComponent);
 }
 
 void AProceduralActor::SetMaterial( FString materialName )
 {
-	FString materialPath = "Material'Materials/" + materialName + ".asset";
+	FString materialPath = "/Game/Materials/" + materialName + "." + materialName;
 	//static ConstructorHelpers::FObjectFinder<UMaterial> Material( ( *materialPath ) );
 
-	//m_pMaterial = LoadObject<UMaterial>( )
+	//m_pMaterial = LoadObject<UMaterial>( NULL, ( *materialPath ), NULL, LOAD_None, NULL );
+	m_pMaterial = ( UMaterial* )StaticLoadObject( UMaterial::StaticClass(), nullptr, ( *materialPath ) );
+
+	if ( !m_pMaterial )
+	{
+		UE_LOG( LogTemp, Warning, TEXT( "No Material!" ) );
+		return;
+	}
+	
+	UMaterialInstanceDynamic* p_matDynamic = UMaterialInstanceDynamic::Create( m_pMaterial, m_pMesh );
+
+	if ( !p_matDynamic )
+	{
+		UE_LOG( LogTemp, Warning, TEXT( "No Dynamic Material!" ) );
+		return;
+	}
+
+	m_pMesh->SetMaterial( 0, p_matDynamic );
+	
 	/*if ( Material.Object != NULL )
 	{
 		m_pMaterial = ( UMaterial* )Material.Object;
 
-		UMaterialInterface* p_matDynamic = UMaterialInstanceDynamic::Create( m_pMaterial, this );
-		m_pMesh->SetMaterial( 0, p_matDynamic );
+		
 	}*/
 }

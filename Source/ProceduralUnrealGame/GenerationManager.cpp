@@ -15,6 +15,7 @@ UGenerationManager::UGenerationManager()
 	bWantsBeginPlay = true;
 	PrimaryComponentTick.bCanEverTick = true;
 
+	Maths::ResetSeed();
 	// ...
 }
 
@@ -23,13 +24,9 @@ UGenerationManager::UGenerationManager()
 void UGenerationManager::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Maths::ResetSeed();
-
 	// start the generation process
 	Generate();
 }
-
 
 // Called every frame
 void UGenerationManager::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
@@ -48,17 +45,17 @@ void UGenerationManager::Generate( void )
 
 	CreateWater();
 
-	/*for ( int i = 0; i < rows; ++i )
+	for ( int i = 0; i < rows; ++i )
 	{
 		for ( int j = 0; j < columns; ++j )
 		{
-			position.X = ( float )i * offset;
-			position.Y = ( float )j * offset;
+			position.X = ( ( float )i * offset ) + Maths::RandomGen( -500, 500 );
+			position.Y = ( ( float )j * offset ) + Maths::RandomGen( -500, 500 );
 			float randmin = Maths::RandomGen( 0.4f, 20.4 );
-			float randmax = randmin + Maths::RandomGen( 0.6f, 2.0f );
+			float randmax = randmin + Maths::RandomGen( 0.6f, 10.0f );
 			GenerateTreepmapArea( position, randmin, randmax );
 		}
-	}*/
+	}
 
 	delete m_pShapeGrammar;
 }
@@ -67,14 +64,14 @@ void UGenerationManager::CreateWater( void )
 {
 	TArray<FVector> vertices;
 	FActorSpawnParameters spawnParams;
-	FVector position( 0.0f, 0.0f, 0.0f );
+	FVector position( 0.0f, 0.0f, 2.0f );
 	FRotator rotation( 0.0f, 0.0f, 0.0f );
 
 	float planeScale = 1000.0f;
 	m_pShapeGrammar->CreatePlane( vertices, planeScale );
 
 	AProceduralActor* p_obj = GetWorld()->SpawnActor<AProceduralActor>( AProceduralActor::StaticClass(), position, rotation, spawnParams );
-	p_obj->SetVertices( vertices, planeScale );
+	p_obj->SetVertices( vertices, false, planeScale );
 	p_obj->SetActorScale3D( FVector( 100.0f, 100.0f, 100.0f ) );
 	p_obj->SetMaterial( "M_Water_Ocean" );
 }
@@ -87,7 +84,7 @@ void UGenerationManager::GenerateTreepmapArea( FVector& position, float& minHeig
 	float scaleFactor = 20.0f;
 	SquarifiedTreemapParameters stmParams;
 	stmParams.randomiseSegmentCountPerRecursion = true;
-	stmParams.depth = 6;
+	stmParams.depth = Maths::RandomGen( 4, 8 );
 	stmParams.rootCell.points[0] = { -scaleFactor, -scaleFactor };
 	stmParams.rootCell.points[1] = { scaleFactor, -scaleFactor };
 	stmParams.rootCell.points[2] = { scaleFactor, scaleFactor };
@@ -106,4 +103,5 @@ void UGenerationManager::GenerateTreepmapArea( FVector& position, float& minHeig
 	AProceduralActor* p_obj = GetWorld()->SpawnActor<AProceduralActor>( AProceduralActor::StaticClass(), position, rotation, spawnParams );
 	p_obj->SetVertices( vertices );
 	p_obj->SetActorScale3D( FVector( 100.0f, 100.0f, 100.0f ) );
+	p_obj->SetMaterial( "M_Concrete_Tiles" );
 }
