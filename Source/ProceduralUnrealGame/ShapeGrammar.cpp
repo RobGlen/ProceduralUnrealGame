@@ -12,12 +12,17 @@ ShapeGrammar::~ShapeGrammar()
 {
 }
 
+/*
+	Go through every 6 vertices (as two triangles make up a plane)
+	Copy the verts and move them along the normal vector
+	Create the sides between the new top and bottom planes
+	Add the new vertices to the original vertex array
+*/
 void ShapeGrammar::ExtrudePlanes( TArray<FVector>& vertices, bool randomiseHeights, float min, float max, TArray<FVector>* normals )
 {
 	TArray<FVector> newverts;
 	FVector defaultNormal( 0.0f, 0.0f, 1.0f );
 	FVector normal = defaultNormal;
-	//float randomFactor = 1.0f;
 
 	for ( int i = 0; i < vertices.Num(); i += 6 )
 	{
@@ -27,7 +32,6 @@ void ShapeGrammar::ExtrudePlanes( TArray<FVector>& vertices, bool randomiseHeigh
 		if ( randomiseHeights )
 		{
 			normal *= Maths::RandomGen( min, max );
-			//UE_LOG( LogTemp, Warning, TEXT( "%f: ( %f, %f, %f )" ), randomFactor, normal.X, normal.Y, normal.Z );
 		}
 
 		FVector verts[4];
@@ -52,6 +56,9 @@ void ShapeGrammar::ExtrudePlanes( TArray<FVector>& vertices, bool randomiseHeigh
 	vertices.Append( newverts );
 }
 
+/*
+	Add the six vertices that make up the sides
+*/
 void ShapeGrammar::CreateSide( const FVector& a, const FVector& b, const FVector& c, const FVector& d, TArray<FVector>& verts )
 {
 	verts.Add( a );
@@ -62,6 +69,9 @@ void ShapeGrammar::CreateSide( const FVector& a, const FVector& b, const FVector
 	verts.Add( b );
 }
 
+/*
+	Take each line in the path and add vertices based on the left and right vector of a and b of the line
+*/
 void ShapeGrammar::CreatePathMesh( TArray<Line>& path, TArray<FVector>& vertices, float width )
 {
 	for ( int i = 0; i < path.Num(); ++i )
@@ -86,6 +96,10 @@ void ShapeGrammar::CreatePathMesh( TArray<Line>& path, TArray<FVector>& vertices
 	}
 }
 
+/*
+	Create a basic plane on the x and y axis based on the scale value
+	(Should maybe add a way to make a plane perpendicular to a normal instead of just making them perpendicular to world up)
+*/
 void ShapeGrammar::CreatePlane( TArray<FVector>& vertices, float scale )
 {
 	FVector verts[4];

@@ -15,6 +15,7 @@ UGenerationManager::UGenerationManager()
 	bWantsBeginPlay = true;
 	PrimaryComponentTick.bCanEverTick = true;
 
+	//reset the seed so random numbers change
 	Maths::ResetSeed();
 	// ...
 }
@@ -24,6 +25,7 @@ UGenerationManager::UGenerationManager()
 void UGenerationManager::BeginPlay()
 {
 	Super::BeginPlay();
+
 	// start the generation process
 	Generate();
 }
@@ -36,6 +38,9 @@ void UGenerationManager::TickComponent( float DeltaTime, ELevelTick TickType, FA
 	// ...
 }
 
+/*
+	Execute the generation process - create the water, and create a 6x6 grid of squarified treemaps, offset by a random amount
+*/
 void UGenerationManager::Generate( void )
 {
 	int rows = 6, columns = 6;
@@ -60,22 +65,38 @@ void UGenerationManager::Generate( void )
 	delete m_pShapeGrammar;
 }
 
+/*
+	Create the ground and the water above it,
+	ground has collision, water has none
+	this would spawn some kind of physics volume if it was finished
+*/
 void UGenerationManager::CreateWater( void )
 {
 	TArray<FVector> vertices;
 	FActorSpawnParameters spawnParams;
-	FVector position( 0.0f, 0.0f, 2.0f );
+	FVector waterPosition( 0.0f, 0.0f, 2.0f );
+	FVector groundPosition( 0.0f, 0.0f, -140.0f );
 	FRotator rotation( 0.0f, 0.0f, 0.0f );
 
 	float planeScale = 1000.0f;
 	m_pShapeGrammar->CreatePlane( vertices, planeScale );
 
-	AProceduralActor* p_obj = GetWorld()->SpawnActor<AProceduralActor>( AProceduralActor::StaticClass(), position, rotation, spawnParams );
-	p_obj->SetVertices( vertices, false, planeScale );
-	p_obj->SetActorScale3D( FVector( 100.0f, 100.0f, 100.0f ) );
-	p_obj->SetMaterial( "M_Water_Ocean" );
+	AProceduralActor* p_waterObj = GetWorld()->SpawnActor<AProceduralActor>( AProceduralActor::StaticClass(), waterPosition, rotation, spawnParams );
+	p_waterObj->SetVertices( vertices, false, planeScale );
+	p_waterObj->SetActorScale3D( FVector( 100.0f, 100.0f, 100.0f ) );
+	p_waterObj->SetMaterial( "M_Water_Ocean" );
+
+	AProceduralActor* p_ground = GetWorld()->SpawnActor<AProceduralActor>( AProceduralActor::StaticClass(), groundPosition, rotation, spawnParams );
+	p_ground->SetVertices( vertices, true, planeScale );
+	p_ground->SetActorScale3D( FVector( 100.0f, 100.0f, 100.0f ) );
+	//p_waterVolume->
+	//p_waterVolume->Brush->
 }
 
+/*
+	Create a squarified treemap, convert into vertex data, extrude each plane randomly,
+	then spawn the resulting mesh into the world at the passed in position
+*/
 void UGenerationManager::GenerateTreepmapArea( FVector& position, float& minHeight, float& maxHeight  )
 {
 	SquarifiedTreemap squarifiedTreemap;

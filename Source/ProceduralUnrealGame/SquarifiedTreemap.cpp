@@ -8,11 +8,17 @@ SquarifiedTreemap::SquarifiedTreemap()
 {
 }
 
+// recursively delete each node in the tree
 SquarifiedTreemap::~SquarifiedTreemap()
 {
 	DeleteTree( m_pRoot );
 }
 
+/*
+	Begin the generation process for the squarified treemap
+	Create the root, construct the tree, then use the tree to create the split planes
+	And then convert the results into vertex data
+*/
 void SquarifiedTreemap::GenerateSTM( SquarifiedTreemapParameters& stmParams, TArray<FVector>& vertices  )
 {
 	m_pRoot = new Node;
@@ -21,19 +27,18 @@ void SquarifiedTreemap::GenerateSTM( SquarifiedTreemapParameters& stmParams, TAr
 	GenerateTree( m_pRoot, stmParams.baseSegments, stmParams.depth, stmParams.decay );
 	
 	m_pRoot->cell = m_stmParams.rootCell;
-	//m_pRoot->cell = { { -1.0f, -1.0f }, { 1.0f, -1.0f }, { 1.0f, 1.0f }, { -1.0f, 1.0f } };
-	//m_pRoot->cell.points[0] = { -1.0f, -1.0f };
-	//m_pRoot->cell.points[1] = { 1.0f, -1.0f };
-	//m_pRoot->cell.points[2] = { 1.0f, 1.0f };
-	//m_pRoot->cell.points[3] = { -1.0f, 1.0f };
 	GenerateMap( m_pRoot, true );
 
 	ConvertSTMToVertices( m_pRoot, vertices );
 }
 
+/*
+	Recursively construct the tree
+	Construct a child for each segment, add the child to the parent, and construct the child's children
+*/
 Node* SquarifiedTreemap::GenerateTree( Node* p_parent, int segments, int depth, int decay )
 {
-	if ( !p_parent || depth == 0 )
+	if ( !p_parent || depth <= 0 )
 	{
 		return p_parent;
 	}
@@ -60,6 +65,13 @@ Node* SquarifiedTreemap::GenerateTree( Node* p_parent, int segments, int depth, 
 	return p_parent;
 }
 
+/*
+	Split the plane up based on children recursively
+	Set the child width based on parent width/height and child count
+	then set right/bottom side points based on left/top side points + child width/height
+	then set the position of points based on which child it is currently on
+	then go to child method to split up that plane
+*/
 void SquarifiedTreemap::GenerateMap( Node* p_node, bool horizontal )
 {
 	if ( !p_node )
@@ -70,13 +82,6 @@ void SquarifiedTreemap::GenerateMap( Node* p_node, bool horizontal )
 	float childCount = p_node->children.size();
 	float parentWidth = p_node->cell.points[1].x - p_node->cell.points[0].x;
 	float parentHeight = p_node->cell.points[3].y - p_node->cell.points[0].y;
-	float cellSum = 0;
-	float offset = ( horizontal ) ? p_node->cell.points[0].x : p_node->cell.points[0].y;
-
-	for ( int i = 0; i < childCount; ++i )
-	{
-		cellSum += p_node->children[i]->cellValue;
-	}
 
 	for ( int i = 0; i < childCount; ++i )
 	{
@@ -94,8 +99,6 @@ void SquarifiedTreemap::GenerateMap( Node* p_node, bool horizontal )
 			{
 				thisnode->cell.points[j].x += childWidth * i;	
 			}
-
-			offset += thisnode->cell.points[2].x;
 		}
 		else
 		{
@@ -107,8 +110,6 @@ void SquarifiedTreemap::GenerateMap( Node* p_node, bool horizontal )
 			{
 				thisnode->cell.points[j].y += childHeight * i;	
 			}
-
-			offset += thisnode->cell.points[3].y;
 		}
 
 		GenerateMap( thisnode, !horizontal );
@@ -116,6 +117,10 @@ void SquarifiedTreemap::GenerateMap( Node* p_node, bool horizontal )
 	
 }
 
+/*
+	Go to leafs of tree (ends) and create vertex data from cell points
+	All of the children will make up the total of the root plane
+*/
 void SquarifiedTreemap::ConvertSTMToVertices( Node* p_node, TArray<FVector>& vertices )
 {
 	if ( !p_node )
@@ -156,6 +161,11 @@ void SquarifiedTreemap::ConvertSTMToVertices( Node* p_node, TArray<FVector>& ver
 	}
 }
 
+/*
+	If the current node is null return
+	Recursively go through the children
+	After that, delete the current node as every node below it has been deleted
+*/
 void SquarifiedTreemap::DeleteTree( Node* p_node )
 {
 	if ( !p_node )
